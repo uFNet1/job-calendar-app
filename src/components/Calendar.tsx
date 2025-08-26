@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Settings from "./Settings";
 import Cookies from "js-cookie";
+import CalendarTable from "./CalendarTable";
+import CalendarDate from "./CalendarDate";
 
 const months = [
   "",
@@ -42,6 +44,14 @@ export default function Calendar() {
   const [showOnly, setShowOnly] = useState(0);
   // const [remainingToSelect, setRemainingToSelect] = useState(0);
   // const [typeToSelect, setTypeToSelect] = useState(0);
+
+  useEffect(() => {
+    const selectedDayCookie = Cookies.get("firstWorkDay");
+    if (selectedDayCookie) {
+      const date = selectedDayCookie.split(",");
+      setSelectedDay(date[2]);
+    }
+  }, []);
 
   const handleChange = (value) => {
     console.log("asd");
@@ -97,8 +107,6 @@ export default function Calendar() {
           typeToSelect = 1;
         }
       }
-
-      // if (selectedDay && thisDay < selectedDay) continue;
       const isToday = thisDay === Number(date.day);
       weeks.push(appendDaysToArr(month + index, thisDay, isToday, typeToSelect, isAllowedToCalculate));
 
@@ -124,6 +132,7 @@ export default function Calendar() {
           if (isSelectingDay) {
             setSelectedDay(el.target.textContent);
             setIsSelectingDay(false);
+            Cookies.set("firstWorkDay", `${date.year},${date.month},${el.target.textContent}`);
           }
         }}
         className={`cursor-pointer calendar-button px-2 py-1 rounded-lg 
@@ -152,7 +161,7 @@ export default function Calendar() {
   const date = getCurrentDate();
   const days = calculateDays(Number(date.month), date.year);
   return (
-    <>
+    <div className="h-svh">
       <Settings
         onSetDays={handleChange}
         isSelectingDay={isSelectingDay}
@@ -161,33 +170,11 @@ export default function Calendar() {
         isFormFilled={isFormFilled}
         onSetShowType={handleRadioButtons}
       />
-      <div>
-        <button type="button" className="px-4 py-2 mt-4">
-          {date.year}
-        </button>
-        <p>
-          {date.month} - {months[Number(date.month)]}
-        </p>
-      </div>
-      <table className="border-separate border-spacing-3 mx-auto">
-        <thead>
-          <tr></tr>
-        </thead>
-        <tbody>
-          <tr className="font-bold">
-            <td>Пн</td>
-            <td>Вт</td>
-            <td>Ср</td>
-            <td>Чт</td>
-            <td>Пт</td>
-            <td className="text-amber-200">Сб</td>
-            <td className="text-amber-200">Нд</td>
-          </tr>
-          {days?.map((el, index) => (
-            <tr key={index}>{el.map((data) => data)}</tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+      <CalendarDate date={date} months={months} />
+      <CalendarTable days={days} />
+      {/* next Month */}
+      <CalendarDate date={date} months={months} />
+      <CalendarTable days={days} />
+    </div>
   );
 }
