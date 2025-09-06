@@ -1,6 +1,8 @@
-export default function CalendarTable({ days }) {
+import { forwardRef } from "react";
+
+const CalendarTable = forwardRef<HTMLTableElement>(({ days }, ref) => {
   return (
-    <table className="border-separate border-spacing-3 mx-auto">
+    <table ref={ref} className="border-separate border-spacing-3 mx-auto">
       <thead>
         <tr></tr>
       </thead>
@@ -14,10 +16,11 @@ export default function CalendarTable({ days }) {
           <td className="text-amber-200">Сб</td>
           <td className="text-amber-200">Нд</td>
         </tr>
-        {days?.map((el, index) => (
-          <tr key={index}>{el.map((data) => data)}</tr>
+        {days.map((el, index) => (
+          <tr key={`${index}!`}>{el.map((data) => data)}</tr>
         ))}
       </tbody>
     </table>
   );
-}
+});
+export default CalendarTable;
